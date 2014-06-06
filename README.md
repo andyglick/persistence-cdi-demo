@@ -8,6 +8,6 @@ associated with the project, it isn't being referenced. Via the Spring CDIReposi
 scanner finds the Spring Repository classes and configures them and using the repository classes I have been able to 
 write to the database. 
  
-The problem, such as it is, is that I haven't worked out how to configure a CDI Transaction processor, so the 
+The problem, such as it is, is that I haven't worked out how to configure a CDI compliant Transaction Manager, so the 
 inserts are getting lost. That isn't nearly as bad as it sounds. 
     
