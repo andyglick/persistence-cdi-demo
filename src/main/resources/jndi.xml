@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:jee="http://www.springframework.org/schema/jee"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context-4.0.xsd
+  http://www.springframework.org/schema/jee
+  http://www.springframework.org/schema/jee/spring-jee-4.0.xsd
+  http://www.springframework.org/schema/util
+  http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+
+  <context:property-placeholder location="classpath:jdbc.properties"/>
+
+  <bean id="jndi" class="org.apache.xbean.spring.jndi.SpringInitialContextFactory"
+    factory-method="makeInitialContext"
+    p:entries-ref="jndiEntries"/>
+
+  <util:map id="jndiEntries">
+    <entry key="jtaDataSource" value-ref="xaDataSource"/>
+  </util:map>
+
+  <bean id="xaDataSource" class="bitronix.tm.resource.jdbc.PoolingDataSource"
+    init-method="init" destroy-method="close"
+    p:className="org.hsqldb.jdbc.pool.JDBCXADataSource"
+    p:uniqueName="btm"
+    p:maxPoolSize="10"
+    p:minPoolSize="5">
+    <property name="driverProperties">
+      <props>
+        <prop key="url">${database.url}</prop>
+        <prop key="user">${database.user}</prop>
+      </props>
+    </property>
+  </bean>
+
+
+  <bean id="hsqlXADataSource" class="org.hsqldb.jdbc.pool.JDBCXADataSource"
+    p:url="${database.url}"
+    p:user="${database.user}"/>
+  
+  <jee:jndi-lookup id="jtaDataSource" jndi-name="jtaDataSource"/>
+
+</beans>

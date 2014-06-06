@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:jee="http://www.springframework.org/schema/jee"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context-4.0.xsd
+  http://www.springframework.org/schema/jee
+  http://www.springframework.org/schema/jee/spring-jee-4.0.xsd
+  http://www.springframework.org/schema/util
+  http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+
+  <context:property-placeholder location="classpath:jdbc.properties"/>
+
+  <!--  Bitronix Transaction Manager embedded configuration -->
+  <bean id="btmConfig" factory-method="getConfiguration" class="bitronix.tm.TransactionManagerServices">
+    <property name="serverId" value="spring-btm" />
+  </bean>
+
+  <!-- create BTM transaction manager -->
+  <bean id="BitronixTransactionManager" factory-method="getTransactionManager"
+    class="bitronix.tm.TransactionManagerServices" depends-on="btmConfig" destroy-method="shutdown" />
+
+
+  <!-- Spring JtaTransactionManager -->
+  <bean id="JtaTransactionManager" class="org.springframework.transaction.jta.JtaTransactionManager">
+    <property name="transactionManager" ref="BitronixTransactionManager" />
+    <property name="userTransaction" ref="BitronixTransactionManager" />
+  </bean>
+
+  <bean id="xaDataSource" class="org.hsqldb.jdbc.pool.JDBCXADataSource"
+    p:url="{database.url}"
+    p:user="${database.user}"/>
+
+  <bean id="dataSource" class="bitronix.tm.resource.jdbc.PoolingDataSource"/>
+
+  <!--<bean id="dataSource" class="bitronix.tm.resource.jdbc.PoolingDataSource"-->
+    <!--init-method="init" destroy-method="close"-->
+    <!--p:className="org.hsqldb.jdbc.pool.JDBCXADataSource"-->
+    <!--p:uniqueName="user"-->
+    <!--p:maxPoolSize="10"-->
+    <!--p:minPoolSize="5"-->
+    <!--p:allowLocalTransactions="true"-->
+    <!--p:enableJdbc4ConnectionTest="true"-->
+    <!--p:shareTransactionConnections="true">-->
+    <!--<property name="driverProperties">-->
+      <!--<props>-->
+        <!--<prop key="url">${database.url}</prop>-->
+        <!--<prop key="user">${database.user}</prop>-->
+        <!--<prop key="databaseName">user</prop>-->
+      <!--</props>-->
+    <!--</property>-->
+  <!--</bean>-->
+
+  <!--<bean id="primaryDataSource" class="bitronix.tm.resource.jdbc.PoolingDataSource" init-method="init"-->
+    <!--destroy-method="close">-->
+    <!--<property name="uniqueName" value="cucumber-spring-and-eclipselink" />-->
+    <!--<property name="className" value="org.hsqldb.jdbc.pool.JDBCXADataSource" />-->
+    <!--<property name="maxPoolSize" value="5" />-->
+    <!--<property name="testQuery" value="SELECT 1" />-->
+    <!--<property name="allowLocalTransactions" value="true" />-->
+    <!--<property name="driverProperties">-->
+      <!--<props>-->
+        <!--<prop key="user">${database.user}</prop>-->
+        <!--<prop key="password"></prop>-->
+        <!--<prop key="url">${database.url}</prop>-->
+        <!--<prop key="databaseName">cucumber-spring-and-eclipselink</prop>-->
+      <!--</props>-->
+    <!--</property>-->
+  <!--</bean>-->
+</beans>
