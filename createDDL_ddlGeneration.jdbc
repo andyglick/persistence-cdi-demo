@@ -1,0 +1,8 @@
+CREATE TABLE author (author BIGINT NOT NULL, authorName VARCHAR(255) NOT NULL, PRIMARY KEY (author))
+CREATE TABLE book (book BIGINT NOT NULL, title VARCHAR(255) NOT NULL, PRIMARY KEY (book))
+CREATE TABLE book_authors (author BIGINT NOT NULL, book BIGINT NOT NULL, PRIMARY KEY (author, book))
+ALTER TABLE book_authors ADD CONSTRAINT FK_book_authors_author FOREIGN KEY (author) REFERENCES author (author)
+ALTER TABLE book_authors ADD CONSTRAINT FK_book_authors_book FOREIGN KEY (book) REFERENCES book (book)
+CREATE TABLE sequences (sequenceKey VARCHAR(50) NOT NULL, sequenceValue NUMERIC(38), PRIMARY KEY (sequenceKey))
+INSERT INTO sequences(sequenceKey, sequenceValue) values ('author', 0)
+INSERT INTO sequences(sequenceKey, sequenceValue) values ('book', 0)

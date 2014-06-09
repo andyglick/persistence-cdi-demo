@@ -1,5 +1,6 @@
 package info.cukes.transaction;
 
+import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.TransactionManagerServices;
 import org.apache.webbeans.spi.TransactionService;
 
@@ -14,15 +15,20 @@ import javax.transaction.UserTransaction;
 /**
  * @author glick
  */
+@SuppressWarnings("UnusedDeclaration")
 @ApplicationScoped
 public class BitronixTransactionService implements TransactionService
 {
-  private TransactionManager transactionManager;
+  private static BitronixTransactionManager transactionManager = null;
+
+  public BitronixTransactionService()
+  {
+     transactionManager = TransactionManagerServices.getTransactionManager();
+  }
 
   @Override
   public TransactionManager getTransactionManager()
   {
-    transactionManager = TransactionManagerServices.getTransactionManager();
     return transactionManager;
   }
 
@@ -42,8 +48,7 @@ public class BitronixTransactionService implements TransactionService
   @Override
   public UserTransaction getUserTransaction()
   {
-    transactionManager.getU
-    return null;
+    return (UserTransaction) transactionManager;
   }
 
   @Override
@@ -51,5 +56,10 @@ public class BitronixTransactionService implements TransactionService
     Object event) throws Exception
   {
 
+  }
+
+  public void shutdown()
+  {
+    transactionManager.shutdown();
   }
 }

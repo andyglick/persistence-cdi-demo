@@ -5,17 +5,13 @@ import org.apache.deltaspike.cdise.api.CdiContainerLoader;
 import org.apache.deltaspike.cdise.api.ContextControl;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.context.ContextConfiguration;
 import org.zrgs.demo.eclipselink.cdi.EntityManagerProducer;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -26,6 +22,12 @@ public class CdiPersistenceTest
   private static final transient Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   static CdiContainer cdiContainer;
+
+  @PostConstruct
+  public void init()
+  {
+    LOGGER.warn("@PostConstruct::CdiPersistenceTest::init " + System.nanoTime());
+  }
 
   static Thread.UncaughtExceptionHandler uncaughtThreadExceptionHandler = new Thread.UncaughtExceptionHandler()
   {
@@ -52,9 +54,9 @@ public class CdiPersistenceTest
   @Inject
   EntityManagerProducer entityManagerProducer;
 
-  @SuppressWarnings("UnusedDeclaration")
-  @BeforeClass
-  public static void setUpForTestClass()
+  @Test
+  @Transactional
+  public void testCdiDeployment()
   {
     Thread currentThread = Thread.currentThread();
 
@@ -68,20 +70,6 @@ public class CdiPersistenceTest
     ContextControl contextControl = cdiContainer.getContextControl();
 
     contextControl.startContexts();
-  }
-
-  @Before
-  public void setUp()
-  {
-    LOGGER.warn("in empty test sutUp method");
-
-    Thread.setDefaultUncaughtExceptionHandler(uncaughtThreadExceptionHandler);
-  }
-
-  @Test
-  @Transactional
-  public void testCdiDeployment()
-  {
     LOGGER.warn("entering test class");
 
     createAndStoreSomePersistentObjects();
@@ -104,6 +92,24 @@ public class CdiPersistenceTest
     LOGGER.warn("the size of the fetchedBooks is " + fetchedBooks.size());
 
     // Assertions.assertThat(fetchedBooks.size()).isEqualTo(1);
+
+    Thread.setDefaultUncaughtExceptionHandler(uncaughtThreadExceptionHandler);
+
+    LOGGER.warn("in static afterclass method of the CdiPersistenceTest class");
+
+    try
+    {
+      cdiContainer.shutdown();
+    }
+    catch(Throwable t)
+    {
+      LOGGER.error("caught exception in afterClass method -- exception class is " + t.getClass().getName()
+        + " the exception message is " + t.getMessage());
+    }
+    finally
+    {
+      LOGGER.info("exiting testCdiDeployment method of the CdiPersistenceTest class");
+    }
   }
 
   public void createAndStoreSomePersistentObjects()
@@ -134,31 +140,5 @@ public class CdiPersistenceTest
     LOGGER.warn("the cucumber book is " + cucumberBook);
 
     LOGGER.warn("exiting author writing method");
-  }
-
-  @After
-  public void tearDown()
-  {
-    LOGGER.warn("beginning container shutdown in tearDown method");
-  }
-
-  @AfterClass
-  public static void afterClass()
-  {
-    LOGGER.warn("in static afterclass method of the CdiPersistenceTest class");
-
-    try
-    {
-      cdiContainer.shutdown();
-    }
-    catch(Throwable t)
-    {
-      LOGGER.error("caught exception in afterClass method -- exception class is " + t.getClass().getName()
-        + " the exception message is " + t.getMessage());
-    }
-    finally
-    {
-      LOGGER.info("exiting afterclass method of the CdiPersistenceTest class");
-    }
   }
 }
