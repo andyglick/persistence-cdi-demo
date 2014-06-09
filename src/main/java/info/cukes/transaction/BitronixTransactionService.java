@@ -48,7 +48,7 @@ public class BitronixTransactionService implements TransactionService
   @Override
   public UserTransaction getUserTransaction()
   {
-    return (UserTransaction) transactionManager;
+    return transactionManager;
   }
 
   @Override

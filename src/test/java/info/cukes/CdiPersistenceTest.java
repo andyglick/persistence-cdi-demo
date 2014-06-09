@@ -95,11 +95,14 @@ public class CdiPersistenceTest
 
     Thread.setDefaultUncaughtExceptionHandler(uncaughtThreadExceptionHandler);
 
-    LOGGER.warn("in static afterclass method of the CdiPersistenceTest class");
+    LOGGER.warn("about to invoke cdiContainer.shutdown() in test method testCdiDeployment in test class " +
+      "CdiPersistenceTest class");
 
     try
     {
       cdiContainer.shutdown();
+
+      LOGGER.warn("after invoking cdiContainer.shutdown() THIS SHOULD NOT PRINT");
     }
     catch(Throwable t)
     {
